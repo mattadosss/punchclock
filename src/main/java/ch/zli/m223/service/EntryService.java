@@ -38,5 +38,29 @@ public class EntryService {
         entryRepository.persist(entry);
         return entry;
     }
+
+    @Transactional
+    public void deleteEntry(Entry entry) {
+        entryRepository.delete(entry);
+    }
+
+    @Transactional
+    public Entry updateEntry(Entry entry) {
+        Entry existingEntry = entryRepository.findById(entry.getId());
+        if (existingEntry == null) {
+            throw new IllegalArgumentException("Entry not found");
+        }
+        if (entry.getEmployee() != null && entry.getEmployee().getId() != null) {
+            Employee employee = employeeRepository.findById(entry.getEmployee().getId());
+            if (employee == null) {
+                throw new IllegalArgumentException("Employee not found");
+            }
+            existingEntry.setEmployee(employee);
+        }
+        existingEntry.setCheckIn(entry.getCheckIn());
+        existingEntry.setCheckOut(entry.getCheckOut());
+        return existingEntry;
+    }
+    
 }
 

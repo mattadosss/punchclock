@@ -40,5 +40,37 @@ public class EntryController {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
+
+    @DELETE
+    @Path("/{id}")
+    public Response deleteEntry(@PathParam("id") Long id) {
+        try {
+            Entry entry = entryService.findById(id);
+            if (entry == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            entryService.deleteEntry(entry);
+            return Response.noContent().build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+        
+    }
+
+    @PUT
+    @Path("/{id}")
+    public Response updateEntry(@PathParam("id") Long id, Entry entry) {
+        try {
+            if (entry.getId() == null || !entry.getId().equals(id)) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Entry ID in the path and request body must match").build();
+            }
+            Entry updatedEntry = entryService.updateEntry(entry);
+            return Response.ok(updatedEntry).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+        }
+       
+    }
+    
 }
 
