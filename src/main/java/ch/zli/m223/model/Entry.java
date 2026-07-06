@@ -1,5 +1,6 @@
 package ch.zli.m223.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ public class Entry {
 
     private LocalDateTime checkOut;
 
+    @JsonIgnoreProperties("entries")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
