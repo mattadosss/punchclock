@@ -1,5 +1,7 @@
 package ch.zli.m223.controller;
 
+import ch.zli.m223.dto.EntryDto;
+import ch.zli.m223.model.Employee;
 import ch.zli.m223.model.Entry;
 import ch.zli.m223.service.EntryService;
 import jakarta.inject.Inject;
@@ -32,8 +34,9 @@ public class EntryController {
     }
 
     @POST
-    public Response createEntry(Entry entry) {
+    public Response createEntry(EntryDto entryDto) {
         try {
+            Entry entry = toEntry(entryDto);
             Entry created = entryService.createEntry(entry);
             return Response.status(Response.Status.CREATED).entity(created).build();
         } catch (IllegalArgumentException e) {
@@ -59,11 +62,10 @@ public class EntryController {
 
     @PUT
     @Path("/{id}")
-    public Response updateEntry(@PathParam("id") Long id, Entry entry) {
+    public Response updateEntry(@PathParam("id") Long id, EntryDto entryDto) {
         try {
-            if (entry.getId() == null || !entry.getId().equals(id)) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Entry ID in the path and request body must match").build();
-            }
+            Entry entry = toEntry(entryDto);
+            entry.setId(id);
             Entry updatedEntry = entryService.updateEntry(entry);
             return Response.ok(updatedEntry).build();
         } catch (IllegalArgumentException e) {
@@ -71,6 +73,27 @@ public class EntryController {
         }
        
     }
-    
+
+    private Entry toEntry(EntryDto entryDto) {
+        if (entryDto == null) {
+            throw new IllegalArgumentException("Entry data is required");
+        }
+        if (entryDto.getCheckIn() == null) {
+            throw new IllegalArgumentException("checkIn is required");
+        }
+        if (entryDto.getEmployeeId() == null) {
+            throw new IllegalArgumentException("employeeId is required");
+        }
+
+        Employee employee = new Employee();
+        employee.setId(entryDto.getEmployeeId());
+
+        Entry entry = new Entry();
+        entry.setCheckIn(entryDto.getCheckIn());
+        entry.setCheckOut(entryDto.getCheckOut());
+        entry.setEmployee(employee);
+        return entry;
+    }
+
 }
 
